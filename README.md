@@ -65,3 +65,21 @@ The public sample data are not an actual DISCO network model, electricity loss s
 - assets/app.js: data processing, map and import logic
 
 User CSVs are processed in the browser. Only basemap services and external provider lookups send requests outside the page. Do not import personal or restricted utility information to a public demonstration.
+## V6 Engineering Modules (updated 23 October 2026)
+
+The public website now has separate sidebar modules for:
+
+- **HT / LT Network Intelligence:** working *synthetic* node-and-span graph with disconnection and reachable-node scenario calculations.
+- **Asset & Transformer Intelligence:** master asset template and field readiness.
+- **GIS Engineering QC:** local CSV schema and duplicate-ID checks, with export. Spatial/electrical GIS checks remain in the private V5 portal.
+- **Load Flow & Technical Losses:** LF/PF demonstration calculator using loss factor = 0.3×LF + 0.7×LF², example annual loss and peak demand. Not a calibrated feeder model.
+- **Smart Meter / AMI:** required feeder→transformer→consumer→meter hierarchy and aggregate CSV import/template.
+- **Energy Reconciliation:** input, billed, technical loss and residual demonstration with completeness warnings. Residual is not theft.
+- **Network Resilience:** illustrative exposed-population and inspection effort scenario.
+- **IEC CIM Interoperability:** GIS-to-CIM field/class crosswalk, required attributes, readiness checks and CSV/conceptual JSON export. Exports are not compliant IEC RDF/XML profiles.
+
+Each engineering page has an **Open original private module** action that opens the private local-file loader. The actual Faisalabad City Grid engineering analyses, real feeder QC results, real HT/LT sections, and original CIM readiness assessment remain exclusively in the separate V5 private HTML package. The site never sends that file to the public backend.
+
+**How to see CIM:** Visit https://gridscope-population-hazard-demo.vercel.app/, find **Engineering modules** in the left sidebar and choose **CIM interoperability**. Choose **Open original CIM readiness** and select the private V5 HTML file to view the earlier real-network module.
+
+This production site was deployed directly to Vercel and is not yet configured for automatic Git-to-Vercel deployment.
