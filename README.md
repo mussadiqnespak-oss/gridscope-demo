@@ -83,3 +83,16 @@ Each engineering page has an **Open original private module** action that opens 
 **How to see CIM:** Visit https://gridscope-population-hazard-demo.vercel.app/, find **Engineering modules** in the left sidebar and choose **CIM interoperability**. Choose **Open original CIM readiness** and select the private V5 HTML file to view the earlier real-network module.
 
 This production site was deployed directly to Vercel and is not yet configured for automatic Git-to-Vercel deployment.
+
+## V7 Reference Data Lab — 23 October 2026
+
+The live synthetic portal now includes **Reference data & demo** in the sidebar, with eight distinct sample dataset types:
+electrical transformer losses; transformer loading; monthly billing, meter, population and AMI aggregates; conductor R/X; switching; flood/heat/fault exposure; CIM relationships; and field inspections.
+
+Public reference records use **fictional asset IDs only**. Use the reference table dropdown to browse and download CSV files. Imported reference CSVs are validated against that table's required columns and remain browser-session-only. A copper/core-loss illustration is included and must never be presented as actual measured loss.
+
+**Private engineering data:** The separate private V7 package delivered in ChatGPT contains original transformer EquipmentI IDs and recorded kVA plus simulated values linked to all 1,011 records. It contains the private GIS portal, full reference CSVs, scripts and a Word engineering guide. No real transformer coordinates or identifiers are published to GitHub or Vercel.
+
+New reference CSVs are **not** independently certified. Actual measured loading, transformer test sheets, active billing/meter population, observed floods, asset conditions, switching diagrams and a compliant CIM profile must replace the synthetic values before operations or government decisions.
+
+The public website is deployed directly to Vercel. Automatic GitHub-to-Vercel builds remain a separate optional configuration step.
