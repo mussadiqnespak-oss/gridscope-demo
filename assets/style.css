@@ -24,3 +24,13 @@ input,select,textarea{border:1px solid #d5e1eb;background:#fff;color:var(--ink);
 .leaflet-container{font:inherit}.leaflet-popup-content{font-size:12px;line-height:1.6}.popuphead{font-weight:800;font-size:15px;margin-bottom:9px}
 .leaflet-tooltip{border:0;box-shadow:0 3px 12px #15263730}
 @media(max-width:1200px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}.wide{grid-template-columns:1fr}}@media(max-width:900px){.shell{grid-template-columns:70px 1fr}.sidebar{padding:17px 8px}.brand{font-size:18px;margin-left:5px}.brandtag,.sidehead,.navbtn span,.sidebarfoot{display:none}.navbtn{justify-content:center;padding:12px}.content{padding:16px}.topbar{padding:0 16px}}@media(max-width:600px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto;min-height:0;display:flex;overflow:auto;padding:9px;gap:4px}.sidebar .brand{display:none}.sidebar nav{display:flex;gap:5px}.navbtn{min-width:36px;padding:10px}.topbar{height:auto;padding:12px;align-items:flex-start}.topright{justify-content:flex-end}.grid4,.grid2,.formgrid{grid-template-columns:1fr 1fr}.wide{display:block}.mapwrap{height:360px}.pagelead h1{font-size:20px}}
+/* Engineering module additions */
+.en-flow{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:12px 6px;border-bottom:1px solid #edf1f5}
+.en-flow span{display:inline-block;background:#e9f3f8;border:1px solid #cde3ec;color:#23637f;border-radius:8px;padding:10px;font-size:12px;font-weight:700}
+.en-flow b{font-size:11px;color:#608497}
+.en-tile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.en-tile-grid .dataflag{margin:0}
+#cim .tdata td{max-width:260px;white-space:normal;line-height:1.4}
+#network .pair,#energy .pair{gap:12px}
+#enTopology line{stroke-linecap:round}
+@media(max-width:650px){.en-tile-grid{grid-template-columns:1fr}.en-flow{gap:6px}.en-flow span{font-size:10px;padding:7px}}
