@@ -96,3 +96,23 @@ Public reference records use **fictional asset IDs only**. Use the reference tab
 New reference CSVs are **not** independently certified. Actual measured loading, transformer test sheets, active billing/meter population, observed floods, asset conditions, switching diagrams and a compliant CIM profile must replace the synthetic values before operations or government decisions.
 
 The public website is deployed directly to Vercel. Automatic GitHub-to-Vercel builds remain a separate optional configuration step.
+
+## V8: Rail Bazar loss integration + Shapefile to CIM (24 Oct 2026)
+
+The online CIM page includes a **public-safe browser** import for small Shapefile ZIP / EPSG:4326 GeoJSON and candidate ACLineSegment / PowerTransformer / EnergyConsumer RDF/XML export with field mapping, crosswalk and QA downloads. The external shpjs library must load for browser ZIP inputs. This is a **DRAFT CIM model export**, not a certified 61970-552/CIMTool profile.
+
+The Load Flow & Losses page now explains the newly analysed Rail Bazar FY 2025–26 transformer-loss file, but no actual Rail Bazar asset IDs or loss table were uploaded to public GitHub/Vercel.
+
+The **private V8 ZIP**, delivered in the ChatGPT conversation, contains:
+- full private FESCO GIS portal with Transformer Loss Study (V8) and Shapefile to CIM (V8) tabs;
+- 85 actual report transformer rows, loss audit and unmatched-GIS crosswalk template;
+- command-line converter accepting zipped Shapefiles, GeoPackage or GeoJSON, producing RDF/XML draft, crosswalk CSV, QA CSV and validation JSON;
+- tested CIM output for real 2,181 HT spans and fictitious ZIP test fixture;
+- full 13-page Word engineering documentation and proposed PostGIS SQL schema;
+- prior V7 package, original source GIS and transformer shapefiles in the **private** deliverable.
+
+**Critical join limitation:** None of the 85 Rail Bazar report transformer IDs match the 1,011-record GIS transformer master. An evidence-approved crosswalk is required before creating transformer-linked GIS losses. Do not match by rating or proximity. The source report has ambiguous TAEEquipment_KWh scaling and MaxLoading semantics; both remain source-defined until verified.
+
+**CIM limitations:** Candidate RDF/XML is syntactically testable, but it cannot be presented as exchange-profile conformant without official model/version agreement, electrical connectivity, meter/terminal mapping, switch state, source and stable mRID approval, IEC 61970-552 formatting/headers and CIMTool/target-system conformance checks.
+
+The GitHub repository contains **only the public synthetic demo**. Actual electrical network and transformer study datasets remain in the separate private package.
