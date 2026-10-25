@@ -1,25 +1,25 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="GridScope GIS planning, population and electricity service dashboard: synthetic demonstration with live public data connections and offline private network loader."><title>GridScope V6 · Population & Electricity Intelligence</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="assets/style.css"><script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script defer src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script><script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script><script defer src="assets/app.js"></script><script defer src="assets/engineering.js"></script><script defer src="assets/reference.js"></script><script defer src="https://cdnjs.cloudflare.com/ajax/libs/shpjs/6.2.0/shp.min.js"></script><script defer src="assets/v8-cim.js"></script><script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script defer src="assets/v9-workspace.js"></script></head><body><div class="shell">
 <aside class="sidebar"><div class="brand">◈ Grid<i>Scope</i></div><div class="brandtag">Electricity service intelligence</div>
 <div class="sidehead">Management</div><nav>
-<button class="navbtn active" data-page="workspace">⌂ <span>My Data · Start Here</span></button><button class="navbtn" data-page="overview">◉ <span>Executive dashboard</span></button>
-<button class="navbtn" data-page="geography">◈ <span>Smart map explorer</span></button>
-<button class="navbtn" data-page="comparison">◫ <span>Feeder & transformer</span></button>
-<button class="navbtn" data-page="hotspots">⌕ <span>Service verification</span></button>
-<button class="navbtn" data-page="hazard">◈ <span>Hazards & growth</span></button>
+<button class="navbtn active" data-page="workspace">⌂ <span>My Data · Start Here</span></button><button class="navbtn" data-page="overview">◉ <span>Overview (sample)</span></button>
+<button class="navbtn" data-page="geography">◈ <span>Sample map</span></button>
+<button class="navbtn" data-page="comparison">◫ <span>Compare feeders</span></button>
+<button class="navbtn" data-page="hotspots">⌕ <span>Review areas</span></button>
+<button class="navbtn" data-page="hazard">◈ <span>Flood & growth</span></button>
 <div class="sidehead">Workflows</div>
-<button class="navbtn" data-page="inspection">☑ <span>Field inspections</span></button>
-<button class="navbtn" data-page="imports">⇧ <span>Data imports</span></button>
-<button class="navbtn" data-page="sources">☰ <span>Source register</span></button>
+<button class="navbtn" data-page="inspection">☑ <span>Field checks</span></button>
+<button class="navbtn" data-page="imports">⇧ <span>Demo data upload</span></button>
+<button class="navbtn" data-page="sources">☰ <span>Data sources</span></button>
 <div class="sidehead">Engineering modules</div>
-<button class="navbtn" data-page="network">⚡ <span>HT / LT network</span></button>
-<button class="navbtn" data-page="asset">▤ <span>Asset intelligence</span></button>
-<button class="navbtn" data-page="qc">✓ <span>GIS quality control</span></button>
-<button class="navbtn" data-page="loss">▥ <span>Load flow & losses</span></button>
-<button class="navbtn" data-page="ami">◉ <span>Smart meter / AMI</span></button>
-<button class="navbtn" data-page="energy">≈ <span>Energy reconciliation</span></button>
-<button class="navbtn" data-page="resilience">◈ <span>Network resilience</span></button>
-<button class="navbtn" data-page="cim">≋ <span>CIM interoperability</span></button>
-<button class="navbtn" data-page="transformer-master">▣ <span>Transformer master (V6)</span></button><button class="navbtn" data-page="help">? <span>Help / User guide</span></button><button class="navbtn" data-page="reference">▣ <span>Reference data & demo</span></button><button class="navbtn" data-page="private">▣ <span>Full private portal</span></button>
+<button class="navbtn" data-page="network">⚡ <span>HT/LT lines</span></button>
+<button class="navbtn" data-page="asset">▤ <span>Equipment</span></button>
+<button class="navbtn" data-page="qc">✓ <span>Check GIS files</span></button>
+<button class="navbtn" data-page="loss">▥ <span>Electrical losses</span></button>
+<button class="navbtn" data-page="ami">◉ <span>Smart meters</span></button>
+<button class="navbtn" data-page="energy">≈ <span>Energy balance</span></button>
+<button class="navbtn" data-page="resilience">◈ <span>Hazard impact</span></button>
+<button class="navbtn" data-page="cim">≋ <span>CIM export</span></button>
+<button class="navbtn" data-page="transformer-master">▣ <span>Transformer master (V6)</span></button><button class="navbtn" data-page="help">? <span>Help / User guide</span></button><button class="navbtn" data-page="reference">▣ <span>Example data</span></button><button class="navbtn" data-page="private">▣ <span>Original engineering portal</span></button>
 </nav><div class="sidebarfoot"><strong>GridScope V6</strong><div>Public planning demonstration</div><div>Real FESCO asset data excluded</div><a href="https://github.com/mussadiqnespak-oss/gridscope-demo" target="_blank" rel="noopener" style="color:#7cdbd0">Source code ↗</a></div></aside>
 <div class="main"><header class="topbar"><div><div class="titlewrap" id="pagetitle">My Data · Start Here</div><div class="subhead">Population × electricity service × infrastructure resilience</div></div><div class="topright"><span class="tag amber">● DEMO + YOUR LOCAL IMPORTS</span><span class="tag" id="liveStatus">External data: not loaded</span></div></header><main class="content">
 <div class="notice"><strong>Data safety:</strong> Baseline electricity assets, population, meters, billed units, loss rates, AMI observations and inspection records are <b>synthetic examples</b>. Real public-data layers appear only after successful retrieval or import. Differences are <b>service-record verification signals, not proof of theft</b>. For real HT/LT FESCO network analysis open the private V5 portal using the last menu item.</div>
