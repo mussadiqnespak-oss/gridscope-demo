@@ -1,0 +1,100 @@
+/* GridScope V9 My Data workspace: flexible client-side GIS/tabular imports, no backend upload. */
+(()=>{'use strict';
+const $=s=>document.querySelector(s),safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),norm=s=>String(s??'').toLowerCase().replace(/[^a-z0-9]/g,'').trim(),nval=v=>{if(v==null||String(v).trim()==='')return null;let n=Number(String(v).replace(/,/g,''));return Number.isFinite(n)?n:null},fmt=v=>v==null?'—':Number(v).toLocaleString('en-GB',{maximumFractionDigits:1});
+const feederNames={'117714':'Rail Bazar','117715':'Montgomery','117713':'Circular Road','117706':'Saleemi Chowk','117712':'Ideal Chowk','117716':'Bostan-e-Zahra','117701':'Jhal Khanuana','117707':'Gate Chowk','117705':'Data Street','117704':'L.C.M','117708':'Sarfraz Colony','117703':'Khan Street','117702':'Dar-ul-Ehsan','117711':'Khawaja Garden','117717':'Mian Chowk','117710':'Sharif Pura','117719':'WASA','117718':'General Hospital','117709':'Halal Road'};
+const fields={
+feeders:[['feederCode','Feeder code',true],['feederName','Feeder name',true],['grid','Grid station',false]],
+transformers:[['assetId','Transformer ID (unique)',true],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['kva','Transformer size (kVA)',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM Easting (X)',false],['y','UTM Northing (Y)',false],['pole','Pole name',false]],
+losses:[['assetId','Transformer ID (if available)',false],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['loss','Power loss (kW) or annual loss (kWh)',false],['lossKind','Loss type description',false],['kva','Transformer size (kVA)',false]],
+meters:[['assetId','Transformer ID (if available)',false],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['meters','Active meters / consumers',false],['billed','Billed energy (kWh)',false],['population','Estimated population',false]],
+gis:[['assetId','Feature / equipment ID',false],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['name','Feature name',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM Easting (X)',false],['y','UTM Northing (Y)',false]]
+};
+const aliases={
+feederCode:['feedercode','feederid','fdrid','feeder','fdr','feederno','fdrno','code'],feederName:['feedername','feederdescription','nameofeeder','fdrname','nameoffeeder'],
+assetId:['equipmenti','equipmentid','equipment','transformerid','trafoid','trid','assetid','poleid','poleidno','sectionid','recordid','id'],
+kva:['equipments','kva','ratingkva','transformerkva','sizekva','equipmentrating','nominalkva'],lat:['latitude','lat','gpslat','wgs84lat'],lon:['longitude','long','lon','lng','gpslon','wgs84lon'],
+x:['easting','xcoord','xcoordinate','utmxeasting','utmx','x','coordinatex'],y:['northing','ycoord','ycoordinate','utmynorthing','utmy','y','coordinatey'],
+loss:['annualenergylosskwh','energy_loss_kwh','el','losskwh','totalenergyloss','totalpowerloss','powerloss','losskw','totallosskw','technicalpowerloss','loss'],lossKind:['losstype','type','lossbasis','energyorpower'],
+meters:['activemeters','metercount','consumercount','consumers','totalconsumers','consumerconnections','activeconnections','meter'],billed:['billedkwh','billedunits','energybilled','elunits','monthlybilledkwh','totalbilledunits'],population:['population','estimatedpopulation','totalpopulation','residents'],name:['feature_name','name','pole_survey','polesurvey','equipmentt'],grid:['gridstation','gridname','substation','grid']};
+const dataset={feeders:null,transformers:null,losses:null,meters:null,gis:null};
+let staging=null, map=null,mapLayers=[],layerGroup=null,selectedFeeder='',issues=[],unmatchedReport=[];
+const nameKey=v=>norm(v),isNumericCode=v=>/^\d+$/.test(String(v??'').trim());
+function feederLabel(code,name){let s=String(name??'').trim(),c=String(code??'').trim();if(s&&!isNumericCode(s))return s;let match=dataset.feeders?.rows?.find(x=>(c&&norm(x.feederCode)===norm(c))||(s&&norm(x.feederCode)===norm(s))||(c&&norm(x.feederName)===norm(c)));return match?.feederName||feederNames[c]||feederNames[s]||(isNumericCode(s)?'Feeder code '+s:s)||(c?'Feeder code '+c:'Feeder not specified')}
+function guessColumns(headers,type){let used=new Set,found={};for(let [key] of fields[type]){let list=[...(aliases[key]||[]),norm(key)];let preferred=headers.find(x=>list.includes(norm(x))&&!used.has(x));if(preferred){found[key]=preferred;used.add(preferred)}}return found}
+function parseCSV(s){let rows=[],row=[],cell='',quotes=false;for(let i=0;i<s.length;i++){let a=s[i];if(a==='"'){if(quotes&&s[i+1]==='"'){cell+='"';i++}else quotes=!quotes}else if(a===','&&!quotes){row.push(cell.trim());cell=''}else if((a==='\n'||a==='\r')&&!quotes){if(a==='\r'&&s[i+1]==='\n')i++;row.push(cell.trim());if(row.some(Boolean))rows.push(row);row=[];cell=''}else cell+=a}if(quotes)throw Error('Unclosed quoted value in CSV');row.push(cell.trim());if(row.some(Boolean))rows.push(row);return rows}
+function firstSheetRows(wb){const sheet=wb.Sheets[wb.SheetNames[0]],raw=XLSX.utils.sheet_to_json(sheet,{header:1,defval:'',raw:false});let start=raw.findIndex(r=>r.filter(x=>String(x).trim()).length>=2);if(start<0)throw Error('No table headings found in Excel sheet');return raw.slice(start)}
+async function fileRows(file){const lower=file.name.toLowerCase();if(lower.endsWith('.csv'))return {kind:'table',data:parseCSV(await file.text())};
+if(/\.(xlsx|xls)$/.test(lower)){if(typeof XLSX==='undefined')throw Error('Excel reader library unavailable. Save Excel as CSV or connect to the internet.');return {kind:'table',data:firstSheetRows(XLSX.read(await file.arrayBuffer(),{type:'array'}))}}
+if(lower.endsWith('.json')||lower.endsWith('.geojson'))return {kind:'geo',data:JSON.parse(await file.text())};
+if(lower.endsWith('.zip')){if(typeof window.shp!=='function')throw Error('Shapefile ZIP reader unavailable. Upload GeoJSON or use the private Python converter.');let obj=await window.shp(await file.arrayBuffer());if(Array.isArray(obj)){if(obj.length!==1)throw Error('This ZIP has multiple shapefiles. Import one at a time.');obj=obj[0]}return {kind:'geo',data:obj}}
+throw Error('Use CSV, Excel (.xlsx/.xls), GeoJSON or zipped Shapefile (.zip)')}
+function asRows(file,contents){if(contents.kind==='table'){let raw=contents.data;if(raw.length<2)throw Error('No data rows');let header=raw.shift().map(x=>String(x).trim().replace(/^\ufeff/,''));if(!header.some(Boolean))throw Error('Column headings missing');let rows=raw.filter(r=>r.some(x=>String(x).trim())).map(r=>Object.fromEntries(header.map((h,i)=>[h,r[i]??''])));return {name:file.name,headers:header,rows,geo:null}}
+let g=contents.data;if(!g||g.type!=='FeatureCollection'||!Array.isArray(g.features))throw Error('Please use a GeoJSON FeatureCollection or valid Shapefile ZIP');if(g.features.length>12000)throw Error('Too many features; use offline GIS preprocessing');let props=[...new Set(g.features.slice(0,40).flatMap(x=>Object.keys(x.properties||{})))];return{name:file.name,headers:props,rows:g.features.map(x=>x.properties||{}),geo:g.features}}
+function mappingPreview(stage){let options=(kind,label,needed)=>'<label>'+safe(label)+(needed?' *':'')+'<select data-v9field="'+kind+'"><option value="">— not available —</option>'+stage.headers.map(h=>'<option>'+safe(h)+'</option>').join('')+'</select></label>';
+const mappings=guessColumns(stage.headers,stage.type);
+$('#v9Fields').innerHTML=fields[stage.type].map(x=>options(...x)).join('')+'<label>Coordinate system for X/Y<select id="v9Projection"><option value="4326">Latitude/Longitude (WGS84)</option><option value="32643" selected>UTM Zone 43N</option><option value="32642">UTM Zone 42N</option><option value="32644">UTM Zone 44N</option></select></label>';
+for(let [k,v] of Object.entries(mappings)){$('[data-v9field="'+k+'"]').value=v}
+$('#v9Preview').innerHTML='<thead><tr>'+stage.headers.slice(0,11).map(h=>'<th>'+safe(h)+'</th>').join('')+'</tr></thead><tbody>'+stage.rows.slice(0,5).map(r=>'<tr>'+stage.headers.slice(0,11).map(h=>'<td>'+safe(r[h]).slice(0,100)+'</td>').join('')+'</tr>').join('')+'</tbody>';
+$('#v9Mapping').style.display='block';$('#v9Mapping').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+async function read(){try{const file=$('#v9File').files?.[0];if(!file)throw Error('Choose a file first');if(file.size>12000000)throw Error('Maximum 12 MB in browser. Use Python for large GIS packages.');$('#v9Status').textContent='Reading '+file.name+' ...';let r=asRows(file,await fileRows(file));if(r.rows.length>15000)throw Error('Maximum 15,000 rows per file here; use offline Python for large tables.');staging={...r,type:$('#v9Type').value};mappingPreview(staging);$('#v9Status').textContent='Read '+fmt(r.rows.length)+' records. Check your column selections, then click Show my data.'}catch(e){staging=null;$('#v9Mapping').style.display='none';$('#v9Status').textContent='Could not read file: '+e.message}}
+function utmConvert(easting,northing,zone){let k0=.9996,a=6378137,e=.081819190842622,f=1/298.257223563,eSq=e*e,e1=(1-Math.sqrt(1-eSq))/(1+Math.sqrt(1-eSq)),ep2=eSq/(1-eSq),x=(easting-500000)/k0,y=northing/k0;
+let mu=y/(a*(1-eSq/4-3*eSq*eSq/64-5*eSq**3/256)),phi=mu+(3*e1/2-27*e1**3/32)*Math.sin(2*mu)+(21*e1*e1/16-55*e1**4/32)*Math.sin(4*mu)+(151*e1**3/96)*Math.sin(6*mu),N=a/Math.sqrt(1-eSq*Math.sin(phi)**2),T=Math.tan(phi)**2,C=ep2*Math.cos(phi)**2,R=a*(1-eSq)/(1-eSq*Math.sin(phi)**2)**1.5,D=x/N;
+let lat=phi-(N*Math.tan(phi)/R)*(D**2/2-(5+3*T+10*C-4*C*C-9*ep2)*D**4/24+(61+90*T+298*C+45*T*T-252*ep2-3*C*C)*D**6/720),lon=(D-(1+2*T+C)*D**3/6+(5-2*C+28*T-3*C*C+8*ep2+24*T*T)*D**5/120)/Math.cos(phi);
+return{lat:lat*180/Math.PI,lon:zone*6-183+lon*180/Math.PI}}
+function getPosition(r,projection){let a=nval(r.lat),b=nval(r.lon);if(a!=null&&b!=null&&Math.abs(a)<=90&&Math.abs(b)<=180)return {lat:a,lon:b};let x=nval(r.x),y=nval(r.y);if(x==null||y==null)return null;if(projection!=='4326'){let p=utmConvert(x,y,Number(projection.slice(-2)));if(Number.isFinite(p.lat)&&Number.isFinite(p.lon))return p}else if(Math.abs(y)<=90&&Math.abs(x)<=180)return{lat:y,lon:x};return null}
+function normalizeId(v){return String(v??'').trim().replace(/\.0$/,'')}
+function apply(){if(!staging)return;try{let kind=staging.type,m={};for(let el of document.querySelectorAll('[data-v9field]'))m[el.dataset.v9field]=el.value;let canId=m.assetId||kind==='feeders'&&m.feederCode;if(['transformers','feeders'].includes(kind)&&!canId)throw Error('Select the '+(kind==='transformers'?'Transformer ID':'Feeder Code')+' column.');
+let projection=$('#v9Projection').value,data=staging.rows.map((r,i)=>{let obj={row:i+1,raw:r};for(let [key,column] of Object.entries(m))obj[key]=column?String(r[column]??'').trim():'';obj.assetId=normalizeId(obj.assetId);obj.feederCode=normalizeId(obj.feederCode);obj.kva=nval(obj.kva);obj.loss=nval(obj.loss);obj.meters=nval(obj.meters);obj.billed=nval(obj.billed);obj.population=nval(obj.population);obj.position=getPosition(obj,projection);obj.geometry=staging.geo?.[i]?.geometry||null;return obj});
+const ids=new Set,problems=[];for(let x of data){if(kind==='transformers'&&!x.assetId)problems.push('Missing transformer ID in row '+x.row);if(kind==='transformers'||kind==='feeders'){let key=kind==='feeders'?x.feederCode:x.assetId;if(key&&ids.has(key))problems.push('Duplicate '+(kind==='feeders'?'feeder':'transformer')+' ID '+key);if(key)ids.add(key)}}
+if(problems.length){$('#v9Status').textContent=problems.slice(0,4).join('; ')+' — correct these before importing.';return}
+dataset[kind]={rows:data,name:staging.name,kind,geo:!!staging.geo,projection,date:new Date().toISOString(),mapping:m};
+staging=null;$('#v9Mapping').style.display='none';$('#v9Status').textContent='Imported '+fmt(data.length)+' rows. '+(kind==='feeders'?'Feeder names now shown in your results.':'Map and summaries refreshed.');
+refresh();}catch(e){$('#v9Status').textContent='Import not applied: '+e.message}}
+function csvOut(rows){if(!rows.length)return '';let keys=[...new Set(rows.flatMap(x=>Object.keys(x)))];let q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';return [keys.map(q).join(','),...rows.map(r=>keys.map(k=>q(r[k])).join(','))].join('\r\n')}
+function download(name,txt){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+const template={
+feeders:'Feeder Code,Feeder Name,Grid Name\n117714,Rail Bazar,Faisalabad City\n117715,Montgomery,Faisalabad City\n',
+transformers:'EquipmentI,FeederCode,EquipmentS,Latitude,Longitude\nDEMO-TX01,117714,100,31.416,73.083\nDEMO-TX02,117715,200,31.418,73.085\n',
+losses:'Transformer ID,FeederCode,Annual Energy Loss kWh\nDEMO-TX01,117714,5800\nDEMO-TX02,117715,7100\n',
+meters:'Transformer ID,FeederCode,Active Meters,Billed kWh,Population\nDEMO-TX01,117714,36,5600,190\nDEMO-TX02,117715,62,9700,300\n'
+};
+function featsForMap(){return ['gis','transformers'].flatMap(k=>(dataset[k]?.rows||[]).filter(x=>x.position||x.geometry).map(x=>({x,kind:k})))}
+function setMap(){if(map||!window.L)return;if(!$('#v9Map'))return;map=L.map('v9Map',{scrollWheelZoom:false}).setView([31.4167,73.0833],12);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);layerGroup=L.featureGroup().addTo(map)}
+function featureDisplay(x){let id=x.assetId||x.name||'Mapped feature';let name=feederLabel(x.feederCode,x.feederName);return '<b>'+safe(id)+'</b><div>'+safe(name)+'</div>'+(x.kva!=null?'<div>Transformer size: '+fmt(x.kva)+' kVA</div>':'')+'<div class="muted">From your uploaded file</div>'}
+function mapRefresh(fit=false){if(!map)return;layerGroup.clearLayers();let list=featsForMap().filter(({x})=>!selectedFeeder||nameKey(feederLabel(x.feederCode,x.feederName))===nameKey(selectedFeeder));let added=0;
+for(let {x,kind} of list){let marker=null;if(x.geometry){try{marker=L.geoJSON({type:'Feature',geometry:x.geometry,properties:{}},{style:{color:'#16849d',weight:2,fillOpacity:.24},pointToLayer:(f,ll)=>L.circleMarker(ll,{radius:6,color:'#15a486'})})}catch(e){}}
+if(!marker&&x.position)marker=L.circleMarker([x.position.lat,x.position.lon],{radius:kind==='transformers'?6:4,color:kind==='transformers'?'#d98933':'#167f9b',fillOpacity:.8});
+if(marker){marker.bindPopup(featureDisplay(x));layerGroup.addLayer(marker);added++}}
+$('#v9MapCount').textContent=fmt(added)+' mapped features'+(selectedFeeder?' · '+selectedFeeder:'');$('#v9MapEmpty').style.display=added?'none':'flex';if((fit||added)&&layerGroup.getBounds().isValid()){if(fit||added&&map.getZoom()===12)map.fitBounds(layerGroup.getBounds().pad(.18),{maxZoom:15})}
+}
+function matchAnalysis(){let trans=dataset.transformers?.rows||[],loss=dataset.losses?.rows||[],meters=dataset.meters?.rows||[];unmatchedReport=[];let hitT=0,hitM=0;const idx=new Map(trans.map(x=>[norm(x.assetId),x]));
+for(let x of loss){if(!x.assetId){unmatchedReport.push({record:'Loss row '+x.row,reason:'No transformer ID provided; feeder summary only',feeder:feederLabel(x.feederCode,x.feederName)});continue}if(idx.has(norm(x.assetId)))hitT++;else unmatchedReport.push({record:x.assetId,reason:'Loss report ID not in transformer master',feeder:feederLabel(x.feederCode,x.feederName)})}
+for(let x of meters){if(!x.assetId)continue;if(idx.has(norm(x.assetId)))hitM++;else unmatchedReport.push({record:x.assetId,reason:'Meter report ID not in transformer master',feeder:feederLabel(x.feederCode,x.feederName)})}
+if(!trans.length){$('#v9Unmatched').textContent=loss.length?'Add a transformer file to check '+fmt(loss.length)+' loss rows against EquipmentI IDs.':'Add transformer and loss files for ID matching.';return}
+if(!loss.length){$('#v9Unmatched').textContent='Transformer data loaded. Add a loss report to check ID matches.';return}
+$('#v9Unmatched').innerHTML='<b>'+hitT+' of '+loss.length+' loss records matched by exact transformer ID.</b><p class="muted">'+unmatchedReport.length+' records need checking. '+(meters.length?hitM+' meter rows matched.':'')+' Never join solely by kVA, pole proximity or similar names.</p>'+(unmatchedReport.length?'<div class="reason">'+unmatchedReport.slice(0,4).map(x=>safe(x.record)+' — '+safe(x.reason)).join('<br>')+'</div>':'')}
+function report(){const t=dataset.transformers?.rows||[],l=dataset.losses?.rows||[],m=dataset.meters?.rows||[];const groups=new Map;
+function addGroup(code,name){let label=feederLabel(code,name),key=norm(label);if(!groups.has(key))groups.set(key,{feeder_name:label,transformers:0,nominal_kva:0,loss_rows:0,sum_imported_loss:0,loss_unit:'As supplied in file',meter_rows:0,active_meters:0,billed_kwh:0,population:0});return groups.get(key)}
+for(let r of dataset.feeders?.rows||[])addGroup(r.feederCode,r.feederName);
+for(let r of t){let g=addGroup(r.feederCode,r.feederName);g.transformers++;g.nominal_kva+=r.kva||0}
+for(let r of l){let g=addGroup(r.feederCode,r.feederName);g.loss_rows++;g.sum_imported_loss+=r.loss||0}
+for(let r of m){let g=addGroup(r.feederCode,r.feederName);g.meter_rows++;g.active_meters+=r.meters||0;g.billed_kwh+=r.billed||0;g.population+=r.population||0}
+return[...groups.values()].sort((a,b)=>a.feeder_name.localeCompare(b.feeder_name))}
+function refresh(){let count=Object.keys(dataset).filter(k=>dataset[k]);$('#v9DatasetList').innerHTML=count.length?count.map(k=>'<div class="dataflag"><b>'+({feeders:'Feeder names',transformers:'Transformers',losses:'Loss report',meters:'Meter totals',gis:'GIS map layer'}[k])+'</b>'+safe(dataset[k].name)+' — '+fmt(dataset[k].rows.length)+' rows</div>').join(''):'No files loaded yet.';
+let fdata=report(),fs=fdata.map(x=>x.feeder_name),chosen=$('#v9Feeder').value;$('#v9Feeder').innerHTML='<option value="">All feeders</option>'+fs.map(s=>'<option value="'+safe(s)+'">'+safe(s)+'</option>').join('');$('#v9Feeder').value=fs.includes(chosen)?chosen:'';
+selectedFeeder=$('#v9Feeder').value;
+let t=dataset.transformers?.rows||[],l=dataset.losses?.rows||[];
+let numbers=[fmt(fs.length),fmt(t.length),fmt(t.reduce((a,b)=>a+(b.kva||0),0)),fmt(l.length)];
+$$('#v9Metrics b').forEach((n,i)=>n.textContent=numbers[i]);
+matchAnalysis();setMap();mapRefresh(true)}
+function init(){if(!$('#v9Read'))return;$('#v9Read').onclick=read;$('#v9Apply').onclick=apply;$('#v9Cancel').onclick=()=>{$('#v9Mapping').style.display='none';staging=null};$('#v9Reset').onclick=()=>{if(!confirm('Clear imported data in this browser session?'))return;for(let k of Object.keys(dataset))dataset[k]=null;staging=null;refresh();$('#v9Status').textContent='Imported data cleared.'};
+$('#v9Feeder').onchange=e=>{selectedFeeder=e.target.value;mapRefresh(true)};$('#v9Fit').onclick=()=>mapRefresh(true);
+$('#v9Export').onclick=()=>download('GridScope_My_Feeder_Summary.csv',csvOut(report()));$('#v9ExportIssues').onclick=()=>download('GridScope_ID_Mismatch_Report.csv',csvOut(unmatchedReport));
+$$('[data-v9-template]').forEach(x=>x.onclick=()=>download('GridScope_'+x.dataset.v9Template+'_template.csv',template[x.dataset.v9Template]));
+let nav=$('.navbtn[data-page="workspace"]');nav?.addEventListener('click',()=>setTimeout(()=>{setMap();map.invalidateSize();mapRefresh(true)},100));
+const button=$('.navbtn[data-page="overview"]');if(button)button.classList.remove('active');
+refresh();setTimeout(()=>{setMap();map?.invalidateSize()},120)
+}
+document.addEventListener('DOMContentLoaded',init);
+})();
