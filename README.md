@@ -152,3 +152,22 @@ The **Reference data & demo** tab now allows editing every displayed data cell, 
 **Important engineering limit:** new operation imports are not silently applied to the old precomputed HT/LT graph, calibrated technical-loss calculations or certified CIM network model. Re-run validated Python/QGIS preprocessing and rebuild private engineering outputs for new network topology. The private ZIP includes original inputs, sample reference tables, templates and previous scripts.
 
 For a public demonstration use fictional inputs only. Do not upload private FESCO/LESCO shapefiles or customer information to public GitHub/Vercel. The public website is not an organisation-approved multiuser database or secure hosting service.
+
+## V11 (25 October 2026): Daily Feeder Monitoring — main dashboard
+
+**The HOME page is now Feeder Monitoring.** Other pages are inside two collapsible groups ("More maps & reports" and "Engineering tools"), with My Data, Example Reference Data and Help always visible.
+
+Daily demonstration features:
+- 19 feeder names exactly from the user's FY2025–26 loss study, including Halal Road labelled study-only / missing GIS geometry;
+- 15 daily simulated readings from 11–25 Oct 2026, not live SCADA;
+- daily date picker, feeder search, status filters, daily voltage/current/MW/energy summaries, breaker trip/outage alarms and 15-day trends;
+- click feeder to read values and warning reasons; edit today's reading; export day report or all readings;
+- import Excel workbook containing Daily Readings, Feeder Master and Alert Settings sheets or a daily CSV;
+- automatic recomputation of KPIs, trends, status and thresholds on every new import or edit;
+- generate downloadable Excel from the monitoring page with the SAME sheet-header placement used for the importer.
+
+**Editable polished Excel with daily demo and formulas**: Delivered separately in the conversation as GridScope_Daily_Feeder_Monitoring_EDITABLE_DEMO.xlsx. It has START HERE, Daily Readings, Feeder Master, Alert Settings and Daily Summary worksheets; 285 sample feeder-day readings. Blue calculated columns update with Excel formulas; light-yellow input cells are editable. The workbook uses the original study's feeder names and study peak current, but **every daily telemetry value and the assumed limit/thresholds are sample**, not actual readings. The workbook must be downloaded from the conversation or regenerated via the monitoring-page button.
+
+**Important:** Importing a user workbook recalculates the browser dashboard NOW. It does NOT schedule future ingestion, read live SCADA, send commands, or change the old fixed private GIS engineering studies. Do not import confidential utility records to a public site. Actual live monitoring needs an approved read-only historian/API gateway, secure server, audit trail and access controls.
+
+The separate private V10 package remains the correct place for real GIS geometry and consumer/transformer records.
