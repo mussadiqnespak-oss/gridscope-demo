@@ -1,17 +1,19 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="GridScope GIS planning, population and electricity service dashboard: synthetic demonstration with live public data connections and offline private network loader."><title>GridScope V6 · Population & Electricity Intelligence</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="assets/style.css"><script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script defer src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script><script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script><script defer src="assets/app.js"></script><script defer src="assets/engineering.js"></script><script defer src="assets/reference.js"></script><script defer src="https://cdnjs.cloudflare.com/ajax/libs/shpjs/6.2.0/shp.min.js"></script><script defer src="assets/v8-cim.js"></script><script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script defer src="assets/v9-workspace.js"></script></head><body><div class="shell">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="GridScope GIS planning, population and electricity service dashboard: synthetic demonstration with live public data connections and offline private network loader."><title>GridScope V6 · Population & Electricity Intelligence</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="assets/style.css"><script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script defer src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script><script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script><script defer src="assets/app.js"></script><script defer src="assets/engineering.js"></script><script defer src="assets/reference.js"></script><script defer src="https://cdnjs.cloudflare.com/ajax/libs/shpjs/6.2.0/shp.min.js"></script><script defer src="assets/v8-cim.js"></script><script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script defer src="assets/v9-workspace.js"></script><script defer src="assets/daily-monitor.js"></script></head><body><div class="shell">
 <aside class="sidebar"><div class="brand">◈ Grid<i>Scope</i></div><div class="brandtag">Electricity service intelligence</div>
-<div class="sidehead">Management</div><nav>
-<button class="navbtn active" data-page="workspace">⌂ <span>My Data · Start Here</span></button><button class="navbtn" data-page="overview">◉ <span>Overview (sample)</span></button>
+<div class="sidehead">DAILY OPERATIONS</div><nav>
+<button class="navbtn active" data-page="monitor">◉ <span>Feeder Monitoring</span></button>
+<button class="navbtn" data-page="workspace">⌂ <span>My Data · Start Here</span></button>
+<button class="navbtn" data-page="reference">▣ <span>Example data</span></button>
+<button class="navbtn" data-page="help">? <span>Help / User guide</span></button>
+<details class="sidegroup"><summary>More maps & reports</summary><div class="groupbuttons"><button class="navbtn" data-page="overview">◉ <span>Overview (sample)</span></button>
 <button class="navbtn" data-page="geography">◈ <span>Sample map</span></button>
 <button class="navbtn" data-page="comparison">◫ <span>Compare feeders</span></button>
 <button class="navbtn" data-page="hotspots">⌕ <span>Review areas</span></button>
 <button class="navbtn" data-page="hazard">◈ <span>Flood & growth</span></button>
-<div class="sidehead">Workflows</div>
 <button class="navbtn" data-page="inspection">☑ <span>Field checks</span></button>
 <button class="navbtn" data-page="imports">⇧ <span>Demo data upload</span></button>
-<button class="navbtn" data-page="sources">☰ <span>Data sources</span></button>
-<div class="sidehead">Engineering modules</div>
-<button class="navbtn" data-page="network">⚡ <span>HT/LT lines</span></button>
+<button class="navbtn" data-page="sources">☰ <span>Data sources</span></button></div></details>
+<details class="sidegroup"><summary>Engineering tools</summary><div class="groupbuttons"><button class="navbtn" data-page="network">⚡ <span>HT/LT lines</span></button>
 <button class="navbtn" data-page="asset">▤ <span>Equipment</span></button>
 <button class="navbtn" data-page="qc">✓ <span>Check GIS files</span></button>
 <button class="navbtn" data-page="loss">▥ <span>Electrical losses</span></button>
@@ -19,11 +21,50 @@
 <button class="navbtn" data-page="energy">≈ <span>Energy balance</span></button>
 <button class="navbtn" data-page="resilience">◈ <span>Hazard impact</span></button>
 <button class="navbtn" data-page="cim">≋ <span>CIM export</span></button>
-<button class="navbtn" data-page="transformer-master">▣ <span>Transformer master (V6)</span></button><button class="navbtn" data-page="help">? <span>Help / User guide</span></button><button class="navbtn" data-page="reference">▣ <span>Example data</span></button><button class="navbtn" data-page="private">▣ <span>Original engineering portal</span></button>
-</nav><div class="sidebarfoot"><strong>GridScope V6</strong><div>Public planning demonstration</div><div>Real FESCO asset data excluded</div><a href="https://github.com/mussadiqnespak-oss/gridscope-demo" target="_blank" rel="noopener" style="color:#7cdbd0">Source code ↗</a></div></aside>
-<div class="main"><header class="topbar"><div><div class="titlewrap" id="pagetitle">My Data · Start Here</div><div class="subhead">Population × electricity service × infrastructure resilience</div></div><div class="topright"><span class="tag amber">● DEMO + YOUR LOCAL IMPORTS</span><span class="tag" id="liveStatus">External data: not loaded</span></div></header><main class="content">
+<button class="navbtn" data-page="transformer-master">▣ <span>Transformer master (V6)</span></button>
+<button class="navbtn" data-page="private">▣ <span>Original engineering portal</span></button></div></details>
+</nav><div class="sidebarfoot"><strong>GridScope V11</strong><div>Public planning demonstration</div><div>Real FESCO asset data excluded</div><a href="https://github.com/mussadiqnespak-oss/gridscope-demo" target="_blank" rel="noopener" style="color:#7cdbd0">Source code ↗</a></div></aside>
+<div class="main"><header class="topbar"><div><div class="titlewrap" id="pagetitle">Feeder Monitoring</div><div class="subhead">Population × electricity service × infrastructure resilience</div></div><div class="topright"><span class="tag amber">● DEMO + YOUR LOCAL IMPORTS</span><span class="tag" id="liveStatus">External data: not loaded</span></div></header><main class="content">
 <div class="notice"><strong>Data safety:</strong> Baseline electricity assets, population, meters, billed units, loss rates, AMI observations and inspection records are <b>synthetic examples</b>. Real public-data layers appear only after successful retrieval or import. Differences are <b>service-record verification signals, not proof of theft</b>. For real HT/LT FESCO network analysis open the private V5 portal using the last menu item.</div>
-<section class="page on" id="workspace">
+<section class="page on" id="monitor">
+<div class="pagelead"><div><h1>Feeder Monitoring</h1><p>Check the daily condition of every feeder in one place. Edit the Excel sheet each day and upload it to update all results.</p></div><span class="tag amber" id="monSource">SIMULATED · NO LIVE SCADA</span></div>
+<div class="card" style="padding:15px"><div class="controls">
+<label>Choose day <input id="monDate" type="date" value="2026-10-25" style="margin-left:5px"/></label>
+<label>Find feeder <input id="monSearch" placeholder="Rail Bazar, Montgomery..." style="min-width:175px;margin-left:5px"/></label>
+<label>Upload updated Excel / CSV <input id="monFile" type="file" accept=".xlsx,.xls,.csv" style="max-width:220px"/></label>
+<button class="primary" id="monUpload">Import & update dashboard</button>
+<button class="ghost" id="monDemo">Reset demo</button>
+</div><div id="monImportStatus" class="muted" style="margin-top:9px">Showing daily simulated feeder readings. Upload the editable Excel template to update these figures.</div></div>
+<div class="grid4" id="monKPIs">
+<div class="card"><div class="metriclabel">Feeders with readings</div><div class="metricnum" id="monCount">—</div><div class="metricsub" id="monFeedersNote">Of 19 in reference list</div></div>
+<div class="card"><div class="metriclabel">Operating normally</div><div class="metricnum" id="monNormal">—</div><div class="metricsub">Within demo or imported limits</div></div>
+<div class="card"><div class="metriclabel">Needs attention</div><div class="metricnum" id="monWarning">—</div><div class="metricsub">Warning / missing / trips</div></div>
+<div class="card"><div class="metriclabel">Today's energy at grid</div><div class="metricnum" id="monEnergy">—</div><div class="metricsub">Daily energy input · MWh</div></div>
+</div>
+<div class="wide"><div>
+<div class="card"><div class="cardtitle"><h2>Feeder status — by name</h2><div class="controls"><label>Show <select id="monFilter"><option value="all">All feeders</option><option value="attention">Needs attention</option><option value="normal">Normal only</option></select></label><button id="monExport" class="ghost">↓ Download daily summary</button></div></div>
+<div class="tablewrap"><table class="tdata"><thead><tr><th>Feeder</th><th>Current A</th><th>Voltage kV</th><th>MW</th><th>Loading</th><th>Breaker</th><th>Daily status</th></tr></thead><tbody id="monRows"></tbody></table></div><p class="muted">Tap a feeder name to view its readings, recent trend and reasons for warnings.</p></div>
+<div class="card"><h2>Recent daily loading</h2><canvas id="monOverallChart" width="620" height="210" style="width:100%;height:205px"></canvas><p class="muted">Mean loading of recorded feeders each day. This is not an intraday SCADA graph.</p></div>
+</div>
+<div>
+<div class="card"><div class="cardtitle"><h2 id="monDetailName">Selected feeder</h2><span class="chip" id="monDetailDate">—</span></div>
+<div id="monDetail" class="info">Select a feeder to see its current, voltage, energy and alarms.</div>
+<canvas id="monTrendChart" width="430" height="165" style="width:100%;height:155px;margin-top:12px"></canvas>
+<div class="controls" style="margin-top:8px"><button id="monEdit" class="primary">Edit this day's readings</button><button id="monSaveCSV" class="ghost">↓ Export all daily readings</button></div>
+<div id="monEditPanel" style="display:none;margin-top:12px"><div class="formgrid" id="monEditFields"></div><button id="monApplyEdit" class="primary" style="margin-top:12px">Save edited daily reading</button><p class="muted">Editing changes the dashboard only. Export a CSV to keep these edits.</p></div>
+</div>
+<div class="card"><h2>Alert settings</h2><p class="muted">Imported from the Excel template's Feeder Master and Alert Settings sheets. Editable example settings are also below.</p><div class="formgrid">
+<label>Low voltage (kV)<input id="monLowV" type="number" value="10.5" step=".1"/></label>
+<label>High voltage (kV)<input id="monHighV" type="number" value="11.5" step=".1"/></label>
+<label>PF below<input id="monMinPF" type="number" value=".8" min="0" max="1" step=".01"/></label>
+<label>Loading above (%)<input id="monMaxLoad" type="number" value="90" min="1" max="200"/></label>
+</div><button id="monSaveLimits" class="ghost" style="margin-top:12px">Apply warning limits</button></div>
+</div></div>
+<div class="card"><h2>How to use — 3 simple steps</h2><div class="v9steps"><div><span>1</span><b>Open the Excel</b><small>Daily Readings: enter one row per feeder, every day.</small></div><div><span>2</span><b>Upload it here</b><small>All feeder figures, charts and warnings recalculate automatically.</small></div><div><span>3</span><b>Review and export</b><small>Check highlighted feeders and download your daily report.</small></div></div><div class="divider"></div>
+<b>Data needed for actual monitoring:</b> daily current, voltage, PF, input energy, breaker state, outages and trips; plus verified feeder current ratings. For truly live SCADA-like monitoring, you would later need an <b>authorised read-only data gateway</b> and a secure private database.
+<div style="margin-top:13px" class="controls"><button class="ghost" data-go="workspace">Import more GIS files</button><button class="ghost" data-go="reference">Edit reference data</button><button class="ghost" data-go="help">More help</button></div>
+</div></section>
+<section class="page" id="workspace">
 <div class="pagelead"><div><h1>My GIS Data · Start Here</h1><p>Upload your own files, choose their column names, then view the results on the map. No programming or fixed sample file format needed.</p></div><span class="tag">Your file stays in this browser</span></div>
 <div class="notice"><strong>How this works:</strong> This is a <b>browser-based data viewer</b>, not a secure team database. Do not upload customer names, meter serials or restricted GIS layers here. Use the separate private portal and approved infrastructure for confidential DISCO records. Baseline old pages remain demonstrations until rebuilt from your actual data.</div>
 <div class="card"><h2>Three easy steps</h2><div class="v9steps"><div><span>1</span><b>Choose your file</b><small>CSV, Excel, GeoJSON or Shapefile ZIP</small></div><div><span>2</span><b>Check the column names</b><small>Match feeder name, transformer ID or coordinates</small></div><div><span>3</span><b>Show my data</b><small>See a map, summary, unmatched records and downloads</small></div></div></div>
