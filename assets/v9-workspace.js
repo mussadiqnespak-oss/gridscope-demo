@@ -1,12 +1,22 @@
 /* GridScope V9 My Data workspace: flexible client-side GIS/tabular imports, no backend upload. */
 (()=>{'use strict';
 const $=s=>document.querySelector(s),safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),norm=s=>String(s??'').toLowerCase().replace(/[^a-z0-9]/g,'').trim(),nval=v=>{if(v==null||String(v).trim()==='')return null;let n=Number(String(v).replace(/,/g,''));return Number.isFinite(n)?n:null},fmt=v=>v==null?'—':Number(v).toLocaleString('en-GB',{maximumFractionDigits:1});
-const feederNames={'117714':'Rail Bazar','117715':'Montgomery','117713':'Circular Road','117706':'Saleemi Chowk','117712':'Ideal Chowk','117716':'Bostan-e-Zahra','117701':'Jhal Khanuana','117707':'Gate Chowk','117705':'Data Street','117704':'L.C.M','117708':'Sarfraz Colony','117703':'Khan Street','117702':'Dar-ul-Ehsan','117711':'Khawaja Garden','117717':'Mian Chowk','117710':'Sharif Pura','117719':'WASA','117718':'General Hospital','117709':'Halal Road'};
+const feederNames={'117714':'Rail Bazar','117715':'Montgomery','117713':'Circular Road','117706':'Saleemi Chowk','117712':'Ideal Chowk','117716':'Bostan-e-Zahra','117701':'Jhal Khanuana','117707':'Gate Chowk','117705':'Data Street','117704':'L.C.M','117708':'Sarfraz Colony','117703':'Khan Street','117702':'Dar-ul-Ehsan','117711':'Khawaja Garden','117717':'Mian Chowk','117710':'Sharif Pura','117719':'WASA','117718':'General Hospital','061821':'Halal Road'};
+const EXTRA_OPERATIONS={"ht_lines":"HT lines","ht_poles":"HT poles","lt_lines":"LT lines","lt_poles":"LT poles","consumers":"Consumer summaries","drops":"Service drops","population":"Population / households","hazards":"Flood / hazard polygons","cim":"CIM mappings"};
 const fields={
 feeders:[['feederCode','Feeder code',true],['feederName','Feeder name',true],['grid','Grid station',false]],
 transformers:[['assetId','Transformer ID (unique)',true],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['kva','Transformer size (kVA)',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM Easting (X)',false],['y','UTM Northing (Y)',false],['pole','Pole name',false]],
 losses:[['assetId','Transformer ID (if available)',false],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['loss','Power loss (kW) or annual loss (kWh)',false],['lossKind','Loss type description',false],['kva','Transformer size (kVA)',false]],
 meters:[['assetId','Transformer ID (if available)',false],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['meters','Active meters / consumers',false],['billed','Billed energy (kWh)',false],['population','Estimated population',false]],
+ht_lines:[['assetId','HT section ID',false],['feederCode','Feeder code',false],['feederName','Feeder name',false],['name','Conductor',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM X',false],['y','UTM Y',false]],
+ht_poles:[['assetId','Pole ID',false],['feederCode','Feeder code',false],['feederName','Feeder name',false],['name','Pole label',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM X',false],['y','UTM Y',false]],
+lt_lines:[['assetId','LT section / equipment ID',false],['feederCode','Feeder code',false],['feederName','Feeder name',false],['name','Section name',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM X',false],['y','UTM Y',false]],
+lt_poles:[['assetId','Pole / Equipment ID',false],['feederCode','Feeder code',false],['feederName','Feeder name',false],['name','Pole label',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM X',false],['y','UTM Y',false]],
+consumers:[['assetId','Transformer / Equipment ID',false],['feederCode','Feeder code',false],['feederName','Feeder name',false],['meters','Surveyed consumers (count)',false],['lat','Latitude',false],['lon','Longitude',false]],
+drops:[['assetId','Equipment ID',false],['feederCode','Feeder code',false],['feederName','Feeder name',false],['name','Drop section',false]],
+population:[['feederCode','Feeder code',false],['feederName','Feeder name',false],['population','Estimated population',false]],
+hazards:[['feederCode','Feeder code',false],['feederName','Feeder name',false],['name','Hazard type',false]],
+cim:[['assetId','mRID / equipment ID',false],['feederCode','Feeder code',false],['name','CIM class',false]],
 gis:[['assetId','Feature / equipment ID',false],['feederCode','Feeder code or name',false],['feederName','Feeder name',false],['name','Feature name',false],['lat','Latitude',false],['lon','Longitude',false],['x','UTM Easting (X)',false],['y','UTM Northing (Y)',false]]
 };
 const aliases={
@@ -16,7 +26,10 @@ kva:['equipments','kva','ratingkva','transformerkva','sizekva','equipmentrating'
 x:['easting','xcoord','xcoordinate','utmxeasting','utmx','x','coordinatex'],y:['northing','ycoord','ycoordinate','utmynorthing','utmy','y','coordinatey'],
 loss:['aelkwh','annualenergylosskwh','energy_loss_kwh','el','losskwh','totalenergyloss','totalpowerloss','powerloss','totalpowerlosskw1','losskw','totallosskw','technicalpowerloss','loss'],lossKind:['losstype','type','lossbasis','energyorpower'],
 meters:['activemeters','metercount','consumercount','consumers','totalconsumers','consumerconnections','activeconnections','meter'],billed:['billedkwh','billedunits','energybilled','elunits','monthlybilledkwh','totalbilledunits'],population:['population','estimatedpopulation','totalpopulation','residents'],name:['feature_name','name','pole_survey','polesurvey','equipmentt'],grid:['gridstation','gridname','substation','grid']};
-const dataset={feeders:null,transformers:null,losses:null,meters:null,gis:null};
+const dataset={feeders:null,transformers:null,losses:null,meters:null,gis:null,...Object.fromEntries(Object.keys(EXTRA_OPERATIONS).map(x=>[x,null]))};
+const cityGridPublicNames=Object.entries(feederNames).filter(([code])=>code!=='061821'&&code!=='117709').map(([code,name])=>({row:0,raw:{source:'CITY_GRID_FEEDER_NAMES_ONLY'},feederCode:code,feederName:name}));
+dataset.feeders={kind:'feeders',name:'Faisalabad City Grid — feeder names only (public-safe)',rows:cityGridPublicNames,mapping:{feederCode:'Feeder Code',feederName:'Feeder Name'},geo:false,source:'NAMES_ONLY_NO_NETWORK_GEOMETRY'};
+
 let staging=null, map=null,mapLayers=[],layerGroup=null,selectedFeeder='',issues=[],unmatchedReport=[];
 const nameKey=v=>norm(v),isNumericCode=v=>/^\d+$/.test(String(v??'').trim());
 function feederLabel(code,name){let s=String(name??'').trim(),c=String(code??'').trim();if(s&&!isNumericCode(s))return s;let match=dataset.feeders?.rows?.find(x=>(c&&norm(x.feederCode)===norm(c))||(s&&norm(x.feederCode)===norm(s))||(c&&norm(x.feederName)===norm(c)));return match?.feederName||feederNames[c]||feederNames[s]||(isNumericCode(s)?'Feeder code '+s:s)||(c?'Feeder code '+c:'Feeder not specified')}
@@ -59,7 +72,7 @@ transformers:'EquipmentI,FeederCode,EquipmentS,Latitude,Longitude\nDEMO-TX01,117
 losses:'Transformer ID,FeederCode,Annual Energy Loss kWh\nDEMO-TX01,117714,5800\nDEMO-TX02,117715,7100\n',
 meters:'Transformer ID,FeederCode,Active Meters,Billed kWh,Population\nDEMO-TX01,117714,36,5600,190\nDEMO-TX02,117715,62,9700,300\n'
 };
-function featsForMap(){return ['gis','transformers'].flatMap(k=>(dataset[k]?.rows||[]).filter(x=>x.position||x.geometry).map(x=>({x,kind:k})))}
+function featsForMap(){return ['gis','transformers','ht_lines','ht_poles','lt_lines','lt_poles','consumers','hazards'].flatMap(k=>(dataset[k]?.rows||[]).filter(x=>x.position||x.geometry).map(x=>({x,kind:k})))}
 function setMap(){if(map||!window.L)return;if(!$('#v9Map'))return;map=L.map('v9Map',{scrollWheelZoom:false}).setView([31.4167,73.0833],12);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);layerGroup=L.featureGroup().addTo(map)}
 function featureDisplay(x){let id=x.assetId||x.name||'Mapped feature';let name=feederLabel(x.feederCode,x.feederName);return '<b>'+safe(id)+'</b><div>'+safe(name)+'</div>'+(x.kva!=null?'<div>Transformer size: '+fmt(x.kva)+' kVA</div>':'')+'<div class="muted">From your uploaded file</div>'}
 function mapRefresh(fit=false){if(!map)return;layerGroup.clearLayers();let list=featsForMap().filter(({x})=>!selectedFeeder||nameKey(feederLabel(x.feederCode,x.feederName))===nameKey(selectedFeeder));let added=0;
@@ -81,7 +94,7 @@ for(let r of t){let g=addGroup(r.feederCode,r.feederName);g.transformers++;g.nom
 for(let r of l){let g=addGroup(r.feederCode,r.feederName);g.loss_rows++;g.sum_imported_loss+=r.loss||0}
 for(let r of m){let g=addGroup(r.feederCode,r.feederName);g.meter_rows++;g.active_meters+=r.meters||0;g.billed_kwh+=r.billed||0;g.population+=r.population||0}
 return[...groups.values()].sort((a,b)=>a.feeder_name.localeCompare(b.feeder_name))}
-function refresh(){let count=Object.keys(dataset).filter(k=>dataset[k]);$('#v9DatasetList').innerHTML=count.length?count.map(k=>'<div class="dataflag"><b>'+({feeders:'Feeder names',transformers:'Transformers',losses:'Loss report',meters:'Meter totals',gis:'GIS map layer'}[k])+'</b>'+safe(dataset[k].name)+' — '+fmt(dataset[k].rows.length)+' rows</div>').join(''):'No files loaded yet.';
+function refresh(){let count=Object.keys(dataset).filter(k=>dataset[k]);$('#v9DatasetList').innerHTML=count.length?count.map(k=>'<div class="dataflag"><b>'+({feeders:'Feeder names',transformers:'Transformers',losses:'Loss report',meters:'Meter totals',gis:'GIS map layer',...EXTRA_OPERATIONS}[k])+'</b>'+safe(dataset[k].name)+' — '+fmt(dataset[k].rows.length)+' rows</div>').join(''):'No files loaded yet.';
 let fdata=report(),fs=fdata.map(x=>x.feeder_name),chosen=$('#v9Feeder').value;$('#v9Feeder').innerHTML='<option value="">All feeders</option>'+fs.map(s=>'<option value="'+safe(s)+'">'+safe(s)+'</option>').join('');$('#v9Feeder').value=fs.includes(chosen)?chosen:'';
 selectedFeeder=$('#v9Feeder').value;
 let t=dataset.transformers?.rows||[],l=dataset.losses?.rows||[];
