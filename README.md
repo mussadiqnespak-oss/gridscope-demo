@@ -116,3 +116,25 @@ The **private V8 ZIP**, delivered in the ChatGPT conversation, contains:
 **CIM limitations:** Candidate RDF/XML is syntactically testable, but it cannot be presented as exchange-profile conformant without official model/version agreement, electrical connectivity, meter/terminal mapping, switch state, source and stable mRID approval, IEC 61970-552 formatting/headers and CIMTool/target-system conformance checks.
 
 The GitHub repository contains **only the public synthetic demo**. Actual electrical network and transformer study datasets remain in the separate private package.
+
+## V9 — Reusable import workspace (October 2026)
+
+**Default start page:** My Data · Start Here — https://gridscope-population-hazard-demo.vercel.app/
+
+The old sample map and one-time preloaded engineering studies made the earlier portal hard to use. V9 introduces a **fresh browser-session import workflow** rather than pretending to refresh all precomputed older engineering models:
+
+1. Select CSV, Excel, GeoJSON or a ZIP containing one shapefile with a valid projection.
+2. Choose Feeder names / Transformers / Losses / Meter totals / GIS map layer.
+3. Inspect the first rows, map the source columns with dropdowns (supports aliases such as Feeder Name, FeederCode, EquipmentI, EquipmentS, latitude/longitude, UTM X/Y, AEL_KWh).
+4. Click **Show my data** to replace that category in the working data hub and refresh its live summary, feeder-name filter, map, mismatch checks and CSV exports.
+5. Import additional categories in the same session, e.g., feeder list, transformers, losses, metering counts. A new transformer upload replaces the previous transformer dataset while other categories remain loaded.
+
+**Special importer**: detects the multi-row header layout used by the provided Rail Bazar transformer-loss CSV; automatically looks for HTSurveyEquipment, extracts IDs from text like 'Transformer 200 KVA (137664)', suggests AEL_KWh, and lets the user set one feeder name for all rows.
+
+**Feeder names** are shown wherever possible. The existing legacy sample map is still entirely synthetic and uses **Map Zone** as a descriptive label. A Map Zone is not a town, union council, administrative area or real feeder boundary.
+
+**Data safety**: uploaded files are parsed in the browser; the public website is not a secure database. This new hub does not automatically re-run all of the earlier V8 HT/LT topology, calibrated loss-flow, or CIM calculations; those require validated GIS preprocessing. For sensitive FESCO shapefiles and meter/consumer records, continue using the separately supplied private V8 package on a trusted PC, not public hosting.
+
+**Limits**: 12 MB/file, 15,000 table rows, 12,000 GeoJSON/Shapefile features; coordinate system must be WGS84 for GeoJSON or correctly defined shapefile .prj; UTM 42N/43N/44N in CSV supported; multi-layer ZIP and large GPKG/DEM/WorldPop raster processing still use Python/QGIS. The imported data are session-scoped (refresh resets them) and require new imports. The matching module does not equate unknown asset IDs by size or proximity.
+
+**Examples and formats:** see the template downloads inside My Data. The app's first screen explains the import in three simple steps. For government deployment, build an authorised PostGIS-backed workspace with role-based access, encrypted transport, audit history, field mappings, QA gates, and automatic engineering model recomputation.
