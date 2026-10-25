@@ -34,3 +34,20 @@ input,select,textarea{border:1px solid #d5e1eb;background:#fff;color:var(--ink);
 #network .pair,#energy .pair{gap:12px}
 #enTopology line{stroke-linecap:round}
 @media(max-width:650px){.en-tile-grid{grid-template-columns:1fr}.en-flow{gap:6px}.en-flow span{font-size:10px;padding:7px}}
+
+/* GridScope V9: simple three-step live data import workspace */
+.v9steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.v9steps>div{border:1px solid #d9e6ee;border-radius:11px;padding:13px;display:grid;grid-template-columns:31px minmax(0,1fr);gap:4px 9px;align-items:center;background:#f6fafc}
+.v9steps span{grid-row:span 2;background:#137b9f;border-radius:9px;color:white;display:grid;place-items:center;font-weight:800;width:30px;height:30px}
+.v9steps b{font-size:12px}.v9steps small{font-size:10px;line-height:1.5;color:#7b8fa0}
+.v9fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.v9fields label{font-size:11px;color:#597286;font-weight:700}.v9fields select{display:block;width:100%;margin-top:5px}
+.v9metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.v9metrics>div{border:1px solid #e0e9ef;background:#f6f9fb;padding:14px 12px;border-radius:9px}
+.v9metrics b{font-size:24px;display:block;color:#15466c}
+.v9metrics small{display:block;font-size:11px;color:#71889a;margin-top:5px}
+.v9overlay{display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;background:#ecf5fae8;position:absolute;inset:0;z-index:410;color:#466d7d;font-size:13px;line-height:1.8;pointer-events:none}
+#v9Map{height:100%;width:100%}
+#v9DatasetList .dataflag{margin-bottom:8px}
+#v9Preview{min-width:480px}
+@media(max-width:700px){.v9steps,.v9fields{grid-template-columns:1fr}}
