@@ -85,6 +85,8 @@ function refresh(){let count=Object.keys(dataset).filter(k=>dataset[k]);$('#v9Da
 let fdata=report(),fs=fdata.map(x=>x.feeder_name),chosen=$('#v9Feeder').value;$('#v9Feeder').innerHTML='<option value="">All feeders</option>'+fs.map(s=>'<option value="'+safe(s)+'">'+safe(s)+'</option>').join('');$('#v9Feeder').value=fs.includes(chosen)?chosen:'';
 selectedFeeder=$('#v9Feeder').value;
 let t=dataset.transformers?.rows||[],l=dataset.losses?.rows||[];
+const tbody=$('#v9ResultsRows');if(tbody)tbody.innerHTML=fdata.length?fdata.map(q=>'<tr><td><b>'+safe(q.feeder_name)+'</b></td><td>'+fmt(q.transformers)+'</td><td>'+fmt(q.nominal_kva)+'</td><td>'+fmt(q.loss_rows)+'</td><td>'+fmt(q.sum_imported_loss)+'</td><td>'+fmt(q.active_meters)+'</td></tr>').join(''):'<tr><td colspan="6">Upload a feeder, transformer, loss or meter file to see results.</td></tr>';
+const lossField=dataset.losses?.mapping?.loss||'';$('#v9LossUnitNote').textContent='*Loss totals use the imported '+(lossField||'loss')+' column. Verify the units (kW vs kWh) and reporting period before comparing feeders.';
 let numbers=[fmt(fs.length),fmt(t.length),fmt(t.reduce((a,b)=>a+(b.kva||0),0)),fmt(l.length)];
 $$('#v9Metrics b').forEach((n,i)=>n.textContent=numbers[i]);
 matchAnalysis();setMap();mapRefresh(true)}
