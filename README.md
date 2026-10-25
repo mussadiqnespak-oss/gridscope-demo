@@ -138,3 +138,17 @@ The old sample map and one-time preloaded engineering studies made the earlier p
 **Limits**: 12 MB/file, 15,000 table rows, 12,000 GeoJSON/Shapefile features; coordinate system must be WGS84 for GeoJSON or correctly defined shapefile .prj; UTM 42N/43N/44N in CSV supported; multi-layer ZIP and large GPKG/DEM/WorldPop raster processing still use Python/QGIS. The imported data are session-scoped (refresh resets them) and require new imports. The matching module does not equate unknown asset IDs by size or proximity.
 
 **Examples and formats:** see the template downloads inside My Data. The app's first screen explains the import in three simple steps. For government deployment, build an authorised PostGIS-backed workspace with role-based access, encrypted transport, audit history, field mappings, QA gates, and automatic engineering model recomputation.
+
+## V10: Editable reference data + City Grid default (25 Oct 2026)
+
+**Open the public website:** https://gridscope-population-hazard-demo.vercel.app/
+
+The **Reference data & demo** tab now allows editing every displayed data cell, adding rows, replacing the selected reference CSV and downloading the revised file. Small edits are saved on the current browser when its local storage works. Back up each updated CSV before clearing cache or moving computers. Public reference values are fictional and NOT measured.
+
+**My Data · Start Here** supports independent imports of feeder names, transformers, HT/LT lines and poles, consumer aggregate records, drops, monthly losses, meter totals, population, hazards, generic GIS and CIM mappings. Source formats: CSV, Excel where the optional external reader loads, WGS84 GeoJSON and single-layer zipped Shapefile where the optional reader loads. The import maps fields, previews values, and can export a feeder-name report and mismatch list. **Save project** exports all current imported browser data; **Open project** restores the saved JSON next session. Importing a new category replaces only that category.
+
+**Default dataset:** the public website preloads a **public-safe City Grid FEEDER NAMES list only**. It does not contain actual network poles, transformer coordinates, consumer identities or meter records. The **private V10 HTML inside the separately provided ZIP** opens with the user's complete original City Grid 18-feeder GIS model already embedded, plus transformer/loss study and 8 editable reference datasets. Private V10 also adds an independent per-operation Data Library and Save/Restore working-project JSON.
+
+**Important engineering limit:** new operation imports are not silently applied to the old precomputed HT/LT graph, calibrated technical-loss calculations or certified CIM network model. Re-run validated Python/QGIS preprocessing and rebuild private engineering outputs for new network topology. The private ZIP includes original inputs, sample reference tables, templates and previous scripts.
+
+For a public demonstration use fictional inputs only. Do not upload private FESCO/LESCO shapefiles or customer information to public GitHub/Vercel. The public website is not an organisation-approved multiuser database or secure hosting service.
